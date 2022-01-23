@@ -1,0 +1,13 @@
+{
+  "model_name": "alenusch/rugpt2-paraphraser",
+  "train_data_path": "data/santana/train",
+  "test_data_path": "data/santana/test",
+  "max_epochs": 10,
+  "train_batch_size": 16,
+  "test_batch_size": 32,
+  "sample_max_len": 128,
+  "gradient_accumulation_steps": 2,
+  "learning_rate": 3e-4,
+  "warmup_ratio": 0.05,
+  "wandb_projecct_name": "russe-detox_star_platinum"
+}
