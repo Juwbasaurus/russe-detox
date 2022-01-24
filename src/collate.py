@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 
 class Collate:
@@ -21,6 +21,21 @@ class Collate:
             'attention_mask': [],
             'labels': [],
         }
+        max_batch_len = max([len(sample) for sample in batch])
+        max_len = min(max_batch_len, self.max_len)
         for sample in batch:
             for k, v in sample.items():
-                collated_batch[k].append(v)
+                pad_value = -100 if k == 'labels' else 0
+                collated_batch[k].append(self._pad(v, max_len, pad_value))
+        return collated_batch
+
+    def _pad(
+        self,
+        sample: List[int],
+        max_len: int,
+        pad_value: int,
+    ):
+        sample = sample[:max_len]  # Truncate long
+        delta = len(sample) - max_len
+        sample += [pad_value] * delta
+        return sample
