@@ -8,9 +8,9 @@ from transformers import (
     GPT2TokenizerFast,
 )
 
-from src.datasets import GPT2Dataset
-from src.samplers import BatchByLengthSampler
-from src.collate import Collate
+from src.data.datasets import GPT2Dataset
+from src.data.samplers import BatchByLengthSampler
+from src.data.collate import Collate
 from utils.config import Config
 
 
