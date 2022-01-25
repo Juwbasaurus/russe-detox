@@ -67,11 +67,11 @@ class Trainer3000(transformers.Trainer):
                 # Checkpoint
                 if val_loss < min_val_loss:
                     min_val_loss = val_loss
-                    self._save_checkpoint()
+                    self.save_checkpoint()
             else:
                 # Checkpoint
                 if self.epoch % self.save_every_n_steps == 0:
-                    self._save_checkpoint()
+                    self.save_checkpoint()
 
     def _get_lr_scheduler(self, lr_schedule):
         num_steps = math.ceil(len(self.train_loader) * self.max_epochs / self.gradient_accumulation_steps)
@@ -113,7 +113,7 @@ class Trainer3000(transformers.Trainer):
                 averaged_loss.update(loss.item())
         return averaged_loss.compute()
 
-    def _save_checkpoint(self):
+    def save_checkpoint(self):
         pathlib.Path(self.output_dir).mkdir(parents=True, exist_ok=True)
         self.model.save_pretrained(self.output_dir)
         self.tokenizer.save_pretrained(self.output_dir)

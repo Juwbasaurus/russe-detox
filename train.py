@@ -95,3 +95,4 @@ trainer = Trainer3000(
 )
 
 trainer.run()
+# trainer.save_checkpoint()
