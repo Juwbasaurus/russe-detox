@@ -1,16 +1,20 @@
 import argparse
 import json
+import logging
 
 import torch
+from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 from transformers import (
     GPT2LMHeadModel,
     GPT2TokenizerFast,
 )
+from transformers.optimization import AdamW
 
 from src.data.datasets import GPT2Dataset
 from src.data.samplers import BatchByLengthSampler
 from src.data.collate import Collate
+from src.training.trainers import Trainer3000
 from utils.config import Config
 
 
@@ -19,7 +23,6 @@ SEED = 42069
 torch.manual_seed(SEED)
 torch.cuda.manual_seed(SEED)
 
-
 parser = argparse.ArgumentParser(description='Specify a config for training.')
 parser.add_argument(
     'config',
@@ -27,13 +30,17 @@ parser.add_argument(
     help="Path to config file for training.",
 )
 args = parser.parse_args()
+config_name = args.config.split('.')[0]
 
 with open(args.config, 'r') as f:
     config = Config(json.load(f))
 
+logging.info('Instantiating model and tokenizer...')
 tokenizer = GPT2TokenizerFast.from_pretrained(config.model_name)
 model = GPT2LMHeadModel.from_pretrained(config.model_name)
+model.to(DEVICE)
 
+logging.info('Preparing data...')
 train_dataset = GPT2Dataset(config.train_data_path, tokenizer)
 test_dataset = GPT2Dataset(config.test_data_path, tokenizer)
 
@@ -50,7 +57,6 @@ train_dataloader = DataLoader(
         bucket_size=config.train_batch_size*10,
         seed=SEED,
     ),
-    shuffle=True
 )
 test_dataloader = DataLoader(
     test_dataset,
@@ -65,7 +71,27 @@ test_dataloader = DataLoader(
         bucket_size=config.test_batch_size*10,
         seed=SEED,
     ),
-    shuffle=True,
 )
 
+optimizer = AdamW(
+    params=model.parameters(),
+    lr=config.learning_rate,
+    weight_decay=config.weight_decay,
+)
 
+trainer = Trainer3000(
+    model,
+    train_dataloader,
+    test_dataloader,
+    output_dir=f'models/{config_name}',
+    overwrite_output_dir=True,
+    save_every_n_steps=config.save_every_n_steps,
+    optimizer=optimizer,
+    lr_schedule=config.lr_schedule,
+    max_epochs=config.max_epochs,
+    learning_rate=config.learning_rate,
+    warmup_ratio=config.warmup_ratio,
+    gradient_accumulation_steps=config.gradient_accumulation_steps
+)
+
+trainer.run()
