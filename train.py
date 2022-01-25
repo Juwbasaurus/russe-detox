@@ -30,7 +30,7 @@ parser.add_argument(
     help="Path to config file for training.",
 )
 args = parser.parse_args()
-config_name = args.config.split('.')[0]
+config_name = args.config.split('/')[-1].split('.')[0]
 
 with open(args.config, 'r') as f:
     config = Config(json.load(f))
@@ -81,6 +81,7 @@ optimizer = AdamW(
 
 trainer = Trainer3000(
     model,
+    tokenizer,
     train_dataloader,
     test_dataloader,
     output_dir=f'models/{config_name}',
