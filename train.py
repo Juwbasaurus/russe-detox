@@ -3,7 +3,6 @@ import json
 import logging
 
 import torch
-from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 from transformers import (
     GPT2LMHeadModel,
