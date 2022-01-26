@@ -12,8 +12,6 @@ model = GPT2LMHeadModel.from_pretrained('models/test')
 with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
     reader = csv.reader(f, delimiter='\t')
     next(reader)
-    next(reader)
-    next(reader)
     for row in reader:
         input = tokenizer.encode(row[0] + ' === ', return_tensors='pt')
         model_output = model.generate(
@@ -22,7 +20,7 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
             max_length=128,
             top_k=42,
             top_n=0.69,
-            temperature=1.0,
+            temperature=1.2,
             num_return_sequences=1,
             early_stopping=True,
         )
@@ -32,8 +30,8 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
         model_output = model.generate(
             input,
             max_length=128,
-            num_beams=5,
-            no_repeat_ngram_size=2,
+            num_beams=10,
+            no_repeat_ngram_size=3,
             num_return_sequences=1,
             early_stopping=True
         )
