@@ -1,4 +1,3 @@
-import numpy as np
 from typing import Dict
 
 from torch.utils.data import DataLoader, Dataset
