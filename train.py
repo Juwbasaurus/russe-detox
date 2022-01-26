@@ -15,6 +15,7 @@ from src.data.samplers import BatchByLengthSampler
 from src.data.collate import Collate
 from src.training.trainers import Trainer3000
 from utils.config import Config
+from utils.logging import WandbLogger
 
 
 DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
@@ -33,6 +34,13 @@ config_name = args.config.split('/')[-1].split('.')[0]
 
 with open(args.config, 'r') as f:
     config = Config(json.load(f))
+
+wandb_logger = WandbLogger(
+    project=config.wandb_project_name,
+    entity=None,
+    config=config.to_dict(),
+    name=config_name,
+)
 
 logging.info('Instantiating model and tokenizer...')
 tokenizer = GPT2TokenizerFast.from_pretrained(config.model_name)
@@ -86,6 +94,7 @@ trainer = Trainer3000(
     output_dir=f'models/{config_name}',
     overwrite_output_dir=True,
     save_every_n_steps=config.save_every_n_steps,
+    logger=logger,
     optimizer=optimizer,
     lr_schedule=config.lr_schedule,
     max_epochs=config.max_epochs,

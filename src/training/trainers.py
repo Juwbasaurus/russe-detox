@@ -13,6 +13,7 @@ from transformers.optimization import (
 )
 from tqdm import tqdm
 
+from utils.logging import WandbLogger
 from utils.metrics import Averagetron
 
 
@@ -27,6 +28,7 @@ class Trainer3000(transformers.Trainer):
         output_dir: str = './checkpoints',
         overwrite_output_dir: bool = False,
         save_every_n_steps: int = 10,
+        logger: Optional[WandbLogger] = None,
         optimizer: Optional[Optimizer] = None,
         lr_schedule: str = 'linear',
         max_epochs: int = 69,
@@ -41,6 +43,7 @@ class Trainer3000(transformers.Trainer):
         self.output_dir = output_dir
         self.overwrite_output_dir = overwrite_output_dir
         self.save_every_n_steps = save_every_n_steps
+        self.logger = logger
         self.optimizer = optimizer
         self.max_epochs = max_epochs
         self.learning_rate = learning_rate
@@ -53,16 +56,23 @@ class Trainer3000(transformers.Trainer):
         self.global_step = 0
 
     def run(self):
+        logging_data = dict()
         self.model.train()
         min_val_loss = 100_000
         for epoch in range(self.max_epochs):
-            print(epoch)
             self.epoch += 1
+            print(f'Epoch {self.epoch}')
             train_loss, train_lr = self._train()
+            logging_data = {
+                'epoch': self.epoch,
+                'train_loss': train_loss,
+                'learning_rate': train_lr,
+            }
             print(f'Train loss: {train_loss}')
             # Validation
             if self.val_loader:
                 val_loss = self._validate()
+                logging_data['val_loss'] = val_loss
                 print(f'Val loss: {val_loss}')
                 # Checkpoint
                 if val_loss < min_val_loss:
@@ -72,6 +82,8 @@ class Trainer3000(transformers.Trainer):
                 # Checkpoint
                 if self.epoch % self.save_every_n_steps == 0:
                     self.save_checkpoint()
+            if self.logger:
+                self.logger.log(logging_data)
 
     def _get_lr_scheduler(self, lr_schedule):
         num_steps = math.ceil(len(self.train_loader) * self.max_epochs / self.gradient_accumulation_steps)

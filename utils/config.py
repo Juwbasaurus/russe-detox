@@ -1,7 +1,6 @@
 class Config:
     """Read-only dictionary-like object that replaces keys with attributes.
     """
-
     def __init__(self, dictionary):
         self.__data = dict(dictionary)
 
@@ -10,3 +9,6 @@ class Config:
             return self.__data[name]
         except KeyError:
             raise KeyError(f'No attribute {name}')
+
+    def to_dict(self) -> dict:
+        return self.__data
