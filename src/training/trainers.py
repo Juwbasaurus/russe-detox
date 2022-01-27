@@ -76,6 +76,7 @@ class Trainer3000(transformers.Trainer):
                 # Checkpoint
                 if val_loss < min_val_loss:
                     min_val_loss = val_loss
+                    print('saving')
                     self.save_checkpoint()
             else:
                 # Checkpoint
