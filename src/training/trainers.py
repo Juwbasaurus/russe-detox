@@ -56,7 +56,6 @@ class Trainer3000(transformers.Trainer):
         self.global_step = 0
 
     def run(self):
-        logging_data = dict()
         self.model.train()
         min_val_loss = 100_000
         for epoch in range(self.max_epochs):
@@ -102,6 +101,7 @@ class Trainer3000(transformers.Trainer):
         averaged_loss = Averagetron()
         for batch_idx, batch in enumerate(tqdm(self.train_loader, leave=False)):
             # Training step
+
             output = self.model(**batch)
             loss = output.loss / self.gradient_accumulation_steps
             loss.backward()

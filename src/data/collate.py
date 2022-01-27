@@ -15,16 +15,14 @@ class Collate:
         self.max_len = max_len
         self.device = device
 
-    def __call__(
-        self,
-        batch: List[Dict[str, List[int]]],
-    ) -> Dict[str, List[torch.tensor]]:
+    def __call__(self,
+                 batch: List[Dict[str, List[int]]]) -> Dict[str, List[torch.tensor]]:
         collated_batch = {
             'input_ids': [],
             'attention_mask': [],
             'labels': [],
         }
-        max_batch_len = max([len(sample) for sample in batch])
+        max_batch_len = max([len(sample['input_ids']) for sample in batch])
         max_len = min(max_batch_len, self.max_len)
         for key in collated_batch:
             pad_value = -100 if key == 'labels' else 0
@@ -35,12 +33,10 @@ class Collate:
         return collated_batch
 
     @staticmethod
-    def _pad(
-        sample: List[int],
-        max_len: int,
-        pad_value: int,
-    ) -> List[int]:
+    def _pad(sample: List[int],
+             max_len: int,
+             pad_value: int) -> List[int]:
         sample = sample[:max_len]  # Truncate long
-        delta = len(sample) - max_len
+        delta = max_len - len(sample)
         sample += [pad_value] * delta
         return sample
