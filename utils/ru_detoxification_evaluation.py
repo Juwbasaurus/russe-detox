@@ -1,7 +1,7 @@
 import os
 import argparse
 import torch
-from ru_detoxification_metrics import evaluate_style_transfer, rotation_calibration
+from .ru_detoxification_metrics import evaluate_style_transfer, rotation_calibration
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModel
 from nltk.translate.chrf_score import corpus_chrf
 import pandas as pd

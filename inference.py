@@ -1,3 +1,4 @@
+import argparse
 import csv
 
 from transformers import (
@@ -5,10 +6,18 @@ from transformers import (
     GPT2TokenizerFast,
 )
 
-from infer import infer
 
-tokenizer = GPT2TokenizerFast.from_pretrained('models/test')
-model = GPT2LMHeadModel.from_pretrained('models/test')
+parser = argparse.ArgumentParser(description='Specify a tuned model path.')
+parser.add_argument(
+    'model_path',
+    type=str,
+    help="Path to model and tokenizer files.",
+)
+args = parser.parse_args()
+model_path = args.config.split('/')[-1].split('.')[0]
+
+tokenizer = GPT2TokenizerFast.from_pretrained(model_path)
+model = GPT2LMHeadModel.from_pretrained(model_path)
 
 with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
     reader = csv.reader(f, delimiter='\t')

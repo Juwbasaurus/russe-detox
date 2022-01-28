@@ -9,9 +9,9 @@ def infer(
     tokenizer: GPT2TokenizerFast,
     text: str,
 ) -> str:
-    input = tokenizer.encode(text, return_tensors='pt')
+    input_ids = tokenizer.encode(text, return_tensors='pt')
     model_output = model.generate(
-        input,
+        input_ids,
         do_sample=True,
         max_length=256,
         top_k=40,
