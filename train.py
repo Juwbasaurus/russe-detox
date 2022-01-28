@@ -46,7 +46,14 @@ else:
     wandb_logger = None
 
 logging.info('Instantiating model and tokenizer...')
-tokenizer = GPT2TokenizerFast.from_pretrained(config.model_name)
+tokenizer = GPT2TokenizerFast.from_pretrained(
+    config.model_name,
+    pad_token='<pad>',
+    bos_token='<s>',
+    eos_token='<s>',
+    unk_token='<unk>',
+    mask_token='<mask>',
+)
 model = GPT2LMHeadModel.from_pretrained(config.model_name)
 model.to(DEVICE)
 

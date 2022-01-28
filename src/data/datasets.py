@@ -14,7 +14,7 @@ class GPT2Dataset(Dataset):
 
     def __init__(self,
                  data_path: str,
-                 tokenizer: PreTrainedTokenizerFast):
+                 tokenizer: PreTrainedTokenizerFast,):
         super().__init__()
         source_path = f'{data_path}/source.txt'
         target_path = f'{data_path}/target.txt'

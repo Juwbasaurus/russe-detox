@@ -13,11 +13,12 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
     next(reader)
     i = 0
     for row in reader:
+        print(row[0])
         input = tokenizer.encode(row[0], return_tensors='pt')
         model_output = model.generate(
             input,
             do_sample=True,
-            max_length=128,
+            max_length=256,
             top_k=40,
             top_n=0.7,
             temperature=0.95,
@@ -32,6 +33,7 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
         else:
             i += 1
 
+        # input = tokenizer.encode(row[0] + '===', return_tensors='pt')
         # model_output = model.generate(
         #     input,
         #     max_length=128,
