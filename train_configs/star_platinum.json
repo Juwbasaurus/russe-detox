@@ -1,5 +1,6 @@
 {
   "model_name": "alenusch/rugpt2-paraphraser",
+  "model_type": "gpt2",
   "train_data_path": "data/santana/train",
   "test_data_path": "data/santana/test",
   "max_epochs": 40,
