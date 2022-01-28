@@ -5,30 +5,32 @@ from transformers import (
     GPT2TokenizerFast,
 )
 
-tokenizer = GPT2TokenizerFast.from_pretrained('models')
-model = GPT2LMHeadModel.from_pretrained('models')
+tokenizer = GPT2TokenizerFast.from_pretrained('models/test')
+model = GPT2LMHeadModel.from_pretrained('models/test')
 
 with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
     reader = csv.reader(f, delimiter='\t')
     next(reader)
-    next(reader)
-    next(reader)
-    next(reader)
+    i = 0
     for row in reader:
-        input = tokenizer.encode(row[0] + ' === ', return_tensors='pt')
+        input = tokenizer.encode(row[0], return_tensors='pt')
         model_output = model.generate(
             input,
             do_sample=True,
-            max_length=64,
-            top_k=25,
-            top_n=0.69,
-            temperature=0.9,
+            max_length=128,
+            top_k=40,
+            top_n=0.7,
+            temperature=0.95,
             num_return_sequences=1,
             early_stopping=True,
             eos_token_id=tokenizer.eos_token_id,
         )
         for out in model_output:
             print(tokenizer.decode(out))
+        if i >= 10:
+            break
+        else:
+            i += 1
 
         # model_output = model.generate(
         #     input,
@@ -41,4 +43,3 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
         # )
         # for out in model_output:
         #     print(tokenizer.decode(out))
-        break

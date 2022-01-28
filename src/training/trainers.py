@@ -1,5 +1,7 @@
-import math
 import json
+import logging
+import math
+import os
 import pathlib
 from typing import Optional, Union
 
@@ -16,6 +18,8 @@ from tqdm import tqdm
 from utils.logging import WandbLogger
 from utils.metrics import Averagetron
 
+
+console_logger = logging.getLogger(__name__)
 
 class Trainer3000(transformers.Trainer):
 
@@ -55,7 +59,19 @@ class Trainer3000(transformers.Trainer):
         self.epoch = 0
         self.global_step = 0
 
+        pathlib.Path(self.output_dir).mkdir(parents=True, exist_ok=True)
+        if os.listdir(self.output_dir):
+            if not self.overwrite_output_dir:
+                raise FileExistsError(f"{self.output_dir} is not empty and self.overwrite_output_dir is False.")
+
     def run(self):
+        print("**** START TRAINING ****")
+        print(f"Total epochs: {self.max_epochs}")
+        print(f"Total training examples: {len(self.train_loader.dataset)}")
+        print(f"Total validation examples: {len(self.val_loader.dataset)}")
+        print(f"Total optimization steps: {self.num_steps}")
+        print(f"Total warmup steps: {self.num_warmups_steps}")
+        print(f"Checkpoints will be saved in {self.output_dir}")
         self.model.train()
         min_val_loss = 100_000
         for epoch in range(self.max_epochs):
@@ -75,8 +91,8 @@ class Trainer3000(transformers.Trainer):
                 print(f'Val loss: {val_loss}')
                 # Checkpoint
                 if val_loss < min_val_loss:
+                    print(f'** SAVING BEST CHECKPOINT (epoch {self.epoch}, prev. val_loss {min_val_loss}) **')
                     min_val_loss = val_loss
-                    print('saving')
                     self.save_checkpoint()
             else:
                 # Checkpoint
@@ -86,13 +102,13 @@ class Trainer3000(transformers.Trainer):
                 self.logger.log(logging_data)
 
     def _get_lr_scheduler(self, lr_schedule):
-        num_steps = math.ceil(len(self.train_loader) * self.max_epochs / self.gradient_accumulation_steps)
-        num_warmups_steps = math.floor(num_steps * self.warmup_ratio)
+        self.num_steps = math.ceil(len(self.train_loader) * self.max_epochs / self.gradient_accumulation_steps)
+        self.num_warmups_steps = math.floor(self.num_steps * self.warmup_ratio)
         if lr_schedule == 'linear':
             lr_scheduler = get_linear_schedule_with_warmup(
                 self.optimizer,
-                num_warmup_steps=num_warmups_steps,
-                num_training_steps=num_steps,
+                num_warmup_steps=self.num_warmups_steps,
+                num_training_steps=self.num_steps,
                 )
             return lr_scheduler
         else:
@@ -127,7 +143,6 @@ class Trainer3000(transformers.Trainer):
         return averaged_loss.compute()
 
     def save_checkpoint(self):
-        pathlib.Path(self.output_dir).mkdir(parents=True, exist_ok=True)
         self.model.save_pretrained(self.output_dir)
         self.tokenizer.save_pretrained(self.output_dir)
         state = {

@@ -24,4 +24,4 @@ class WandbLogger:
         )
 
     def log(self, data: dict):
-        self.instance.log(data)
+        self.run.log(data)
