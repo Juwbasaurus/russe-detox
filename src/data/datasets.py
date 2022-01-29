@@ -69,7 +69,7 @@ class Seq2SeqDataset(Dataset):
                     encoding = {
                         'input_ids': source_encodings.input_ids,
                         'attention_mask': source_encodings.attention_mask,
-                        'decoder_input_ids': target_encodings.input_ids,
+                        'labels': target_encodings.input_ids,
                         'decoder_attention_mask': target_encodings.attention_mask,
                     }
                     self.encodings.append(encoding)
