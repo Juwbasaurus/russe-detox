@@ -22,13 +22,22 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
     for row in reader:
         text = preprocess_source(row[0])
         input_ids = tokenizer.encode(text, return_tensors='pt').to(DEVICE)
+        # model_output = model.generate(
+        #     input_ids,
+        #     do_sample=True,
+        #     max_length=128,
+        #     top_k=40,
+        #     top_n=0.5,
+        #     temperature=1.0,
+        #     num_return_sequences=1,
+        #     early_stopping=True,
+        #     eos_token_id=tokenizer.eos_token_id,
+        # )
         model_output = model.generate(
             input_ids,
-            do_sample=True,
             max_length=128,
-            top_k=40,
-            top_n=0.5,
-            temperature=1.0,
+            num_beams=2,
+            # no_repeat_ngram_size=2,
             num_return_sequences=1,
             early_stopping=True,
             eos_token_id=tokenizer.eos_token_id,
@@ -36,9 +45,12 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
         preds.extend([tokenizer.decode(ids, skip_special_tokens=True) for ids in model_output])
 
 with open('data/santana/submission.txt', 'w', encoding='utf8') as sub:
+    i = 0
     for line in preds:
         try:
             line = line.split(' === ')[1]
         except IndexError:
             line = line
+            i += 1
         sub.write(line + '\n')
+    print(i)
