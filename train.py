@@ -7,10 +7,12 @@ from torch.utils.data import DataLoader
 from transformers import (
     GPT2LMHeadModel,
     GPT2TokenizerFast,
+    MT5ForConditionalGeneration,
+    MT5TokenizerFast,
 )
 from transformers.optimization import AdamW
 
-from src.data.datasets import GPT2Dataset
+from src.data.datasets import PromptDataset, Seq2SeqDataset
 from src.data.samplers import BatchByLengthSampler
 from src.data.collate import Collate
 from src.training.trainers import Trainer3000
@@ -46,20 +48,29 @@ else:
     wandb_logger = None
 
 logging.info('Instantiating model and tokenizer...')
-tokenizer = GPT2TokenizerFast.from_pretrained(
-    config.model_name,
-    pad_token='<pad>',
-    bos_token='<s>',
-    eos_token='<s>',
-    unk_token='<unk>',
-    mask_token='<mask>',
-)
-model = GPT2LMHeadModel.from_pretrained(config.model_name)
+if config.model_type == 'gpt':
+    tokenizer = GPT2TokenizerFast.from_pretrained(
+        config.model_name,
+        pad_token='<pad>',
+        bos_token='<s>',
+        eos_token='<s>',
+        unk_token='<unk>',
+        mask_token='<mask>',
+    )
+    model = GPT2LMHeadModel.from_pretrained(config.model_name)
+    DatasetClass = PromptDataset
+elif config.model_type == 't5':
+    tokenizer = MT5TokenizerFast.from_pretrained(config.model_name)
+    model = MT5ForConditionalGeneration.from_pretrained(config.model_name)
+    DatasetClass = Seq2SeqDataset
+else:
+    raise NotImplementedError('Only gpt2 and t5.')
+
 model.to(DEVICE)
 
 logging.info('Preparing data...')
-train_dataset = GPT2Dataset(config.train_data_path, tokenizer)
-test_dataset = GPT2Dataset(config.test_data_path, tokenizer)
+train_dataset = DatasetClass(config.train_data_path, tokenizer)
+test_dataset = DatasetClass(config.test_data_path, tokenizer)
 
 train_dataloader = DataLoader(
     train_dataset,
