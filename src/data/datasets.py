@@ -6,7 +6,6 @@ from transformers import (
     PreTrainedTokenizerFast,
 )
 
-from constants import SEP
 from utils.data_utils import preprocess_source, preprocess_target
 
 
@@ -14,11 +13,13 @@ class GPT2Dataset(Dataset):
 
     def __init__(self,
                  data_path: str,
-                 tokenizer: PreTrainedTokenizerFast,):
+                 tokenizer: PreTrainedTokenizerFast,
+                 separator: str,):
         super().__init__()
         source_path = f'{data_path}/source.txt'
         target_path = f'{data_path}/target.txt'
         self.tokenizer = tokenizer
+        self.separator = separator
         self.encodings = []
         self.lengths = []
         eos_id = tokenizer.eos_token_id
@@ -27,12 +28,17 @@ class GPT2Dataset(Dataset):
             with open(target_path, 'r', encoding='utf8') as target:
                 for src, tgt in tqdm(zip(source, target)):
                     src, tgt = preprocess_source(src), preprocess_target(tgt)
-                    input_text = f'{src} {SEP} {tgt}'
-                    tokenized_input = self.tokenizer(
-                        input_text,
-                        return_token_type_ids=False,)
-                    input_ids = tokenized_input.input_ids + [eos_id]
-                    input_attn = tokenized_input.attention_mask + [1]
+                    src_tokenized = self.tokenizer(
+                        src,
+                        return_token_type_ids=False,
+                    )
+                    tgt_tokenized = self.tokenizer(
+                        tgt,
+                        return_token_type_ids=False,
+                    )
+                    sep = tokenizer.encode(self.separator)
+                    input_ids = src_tokenized.input_ids + sep + tgt_tokenized.input_ids + [self.tokenizer.eos_token_id]
+                    input_attn = src_tokenized.attention_mask + [1] + tgt_tokenized.attention_mask + [1]
                     encoding = {
                         'input_ids': input_ids,
                         'attention_mask': input_attn,

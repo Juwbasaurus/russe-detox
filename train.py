@@ -50,7 +50,7 @@ tokenizer = GPT2TokenizerFast.from_pretrained(
     config.model_name,
     pad_token='<pad>',
     bos_token='<s>',
-    eos_token='<s>',
+    eos_token='</s>',
     unk_token='<unk>',
     mask_token='<mask>',
 )
@@ -58,8 +58,8 @@ model = GPT2LMHeadModel.from_pretrained(config.model_name)
 model.to(DEVICE)
 
 logging.info('Preparing data...')
-train_dataset = GPT2Dataset(config.train_data_path, tokenizer)
-test_dataset = GPT2Dataset(config.test_data_path, tokenizer)
+train_dataset = GPT2Dataset(config.train_data_path, tokenizer, separator=tokenizer.bos_token)
+test_dataset = GPT2Dataset(config.test_data_path, tokenizer, separator=tokenizer.bos_token)
 
 train_dataloader = DataLoader(
     train_dataset,
