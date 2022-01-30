@@ -1,6 +1,6 @@
 from typing import Dict
 
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from tqdm import tqdm
 from transformers import (
     PreTrainedTokenizerFast,
@@ -22,7 +22,6 @@ class GPT2Dataset(Dataset):
         self.separator = separator
         self.encodings = []
         self.lengths = []
-        eos_id = tokenizer.eos_token_id
 
         with open(source_path, 'r', encoding='utf8') as source:
             with open(target_path, 'r', encoding='utf8') as target:
