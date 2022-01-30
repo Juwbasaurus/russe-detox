@@ -20,7 +20,13 @@ parser.add_argument(
 )
 args = parser.parse_args()
 model_path = args.model_path
-tokenizer = GPT2TokenizerFast.from_pretrained(model_path)
+tokenizer = GPT2TokenizerFast.from_pretrained(model_path,
+                                              pad_token='<pad>',
+                                              bos_token='<s>',
+                                              eos_token='<s>',
+                                              unk_token='<unk>',
+                                              mask_token='<mask>',
+                                              )
 model = GPT2LMHeadModel.from_pretrained(model_path).to(DEVICE)
 
 inputs = []
