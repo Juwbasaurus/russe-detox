@@ -17,12 +17,13 @@ class Collate:
 
     def __call__(self,
                  batch: List[Dict[str, List[int]]]) -> Dict[str, List[torch.tensor]]:
-        collated_batch = {
-            'input_ids': [],
-            'attention_mask': [],
-            'labels': [],
-            'decoder_attention_mask': [],
-        }
+        # collated_batch = {
+        #     'input_ids': [],
+        #     'attention_mask': [],
+        #     'labels': [],
+        #     'decoder_attention_mask': [],
+        # }
+        collated_batch = {}
         for key in batch[0]:
             max_batch_len = max([len(sample[key]) for sample in batch])
             max_len = min(max_batch_len, self.max_len)

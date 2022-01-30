@@ -53,6 +53,39 @@ class PromptDataset(Dataset):
         return self.encodings[idx]
 
 
+class AutoEncoderPromptDataset(Dataset):
+
+    def __init__(self,
+                 data_path: str,
+                 tokenizer: PreTrainedTokenizerFast,):
+        super().__init__()
+        target_path = f'{data_path}/target.txt'
+        self.tokenizer = tokenizer
+        self.encodings = []
+        self.lengths = []
+
+        with open(target_path, 'r', encoding='utf8') as target:
+            for tgt in tqdm(target):
+                tgt = preprocess_target(tgt)
+                tgt_tokenized = self.tokenizer(
+                    tgt,
+                    return_token_type_ids=False,
+                )
+                encoding = {
+                    'input_ids': tgt_tokenized.input_ids,
+                    'attention_mask': tgt_tokenized.attention_mask,
+                    'labels': tgt_tokenized.input_ids,
+                }
+                self.encodings.append(encoding)
+                self.lengths.append(len(encoding['input_ids']))
+
+    def __len__(self) -> int:
+        return len(self.encodings)
+
+    def __getitem__(self, idx: int) -> Dict[str, list]:
+        return self.encodings[idx]
+
+
 class Seq2SeqDataset(Dataset):
 
     def __init__(self,

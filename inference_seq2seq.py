@@ -29,8 +29,8 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
         model_output = model.generate(
             input,
             max_length=128,
-            num_beams=1,
-            no_repeat_ngram_size=0,
+            num_beams=5,
+            no_repeat_ngram_size=2,
             num_return_sequences=1,
             early_stopping=True,
             eos_token_id=tokenizer.eos_token_id,
