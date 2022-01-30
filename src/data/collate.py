@@ -21,22 +21,26 @@ class Collate:
             'input_ids': [],
             'attention_mask': [],
             'labels': [],
+            'decoder_attention_mask': [],
         }
-        max_batch_len = max([len(sample['input_ids']) for sample in batch])
-        max_len = min(max_batch_len, self.max_len)
-        for key in collated_batch:
+        for key in batch[0]:
+            max_batch_len = max([len(sample[key]) for sample in batch])
+            max_len = min(max_batch_len, self.max_len)
             pad_value = -100 if key == 'labels' else 0
-            for sample in batch:
-                padded_sample = self._pad(sample[key], max_len, pad_value)
-                collated_batch[key].append(padded_sample)
-            collated_batch[key] = torch.tensor(collated_batch[key], device=self.device)
+            samples = [sample[key] for sample in batch]
+            padded_samples = self._pad(samples, max_len, pad_value)
+            collated_batch[key] = torch.tensor(padded_samples, device=self.device)
         return collated_batch
 
     @staticmethod
-    def _pad(sample: List[int],
+    def _pad(samples: List[List[int]],
              max_len: int,
-             pad_value: int) -> List[int]:
-        sample = sample[:max_len]  # Truncate long
-        delta = max_len - len(sample)
-        sample += [pad_value] * delta
-        return sample
+             pad_value: int = 0) -> List[List[int]]:
+        padded = []
+        max_len = min(max([len(sample) for sample in samples]), max_len)
+        for sample in samples:
+            sample = sample[:max_len]  # Truncate long
+            delta = max_len - len(sample)
+            sample += [pad_value] * delta
+            padded.append(sample)
+        return padded

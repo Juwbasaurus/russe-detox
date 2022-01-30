@@ -2,6 +2,8 @@ import argparse
 import csv
 
 from transformers import (
+    # AutoModel,
+    # AutoTokenizer,
     GPT2LMHeadModel,
     GPT2TokenizerFast,
 )
@@ -15,9 +17,14 @@ parser.add_argument(
 )
 args = parser.parse_args()
 model_path = args.model_path
-print(model_path)
 
-tokenizer = GPT2TokenizerFast.from_pretrained(model_path)
+tokenizer = GPT2TokenizerFast.from_pretrained(model_path,
+                                          pad_token='<pad>',
+                                          bos_token='<s>',
+                                          eos_token='<s>',
+                                          unk_token='<unk>',
+                                          mask_token='<mask>',
+                                          )
 model = GPT2LMHeadModel.from_pretrained(model_path)
 
 with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
@@ -25,9 +32,8 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
     next(reader)
     i = 0
     for row in reader:
-        # print(row[0])
-        input = tokenizer.encode(row[0]+tokenizer.bos_token, return_tensors='pt')
-        orig = len(input[0])
+        print(row[0])
+        input = tokenizer.encode(row[0]+'<s>', return_tensors='pt')
         model_output = model.generate(
             input,
             do_sample=True,
@@ -40,7 +46,7 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
             eos_token_id=tokenizer.eos_token_id,
         )
         for out in model_output:
-            print(tokenizer.decode(out[orig:-1]))
+            print(tokenizer.decode(out))
         if i >= 10:
             break
         else:
@@ -57,4 +63,4 @@ with open('data/orig/input/dev.tsv', 'r', encoding='utf8') as f:
             eos_token_id=tokenizer.eos_token_id,
         )
         for out in model_output:
-            print(tokenizer.decode(out[orig:-1]))
+            print(tokenizer.decode(out))
