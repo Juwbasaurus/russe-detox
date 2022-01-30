@@ -7,8 +7,8 @@ from torch.utils.data import DataLoader
 from transformers import (
     GPT2LMHeadModel,
     GPT2TokenizerFast,
-    MT5ForConditionalGeneration,
-    MT5TokenizerFast,
+    T5ForConditionalGeneration,
+    T5TokenizerFast,
 )
 from transformers.optimization import AdamW
 
@@ -60,8 +60,8 @@ if config.model_type == 'gpt':
     model = GPT2LMHeadModel.from_pretrained(config.model_name)
     DatasetClass = PromptDataset
 elif config.model_type == 't5':
-    tokenizer = MT5TokenizerFast.from_pretrained(config.model_name)
-    model = MT5ForConditionalGeneration.from_pretrained(config.model_name)
+    tokenizer = T5TokenizerFast.from_pretrained(config.model_name)
+    model = T5ForConditionalGeneration.from_pretrained(config.model_name)
     DatasetClass = Seq2SeqDataset
 else:
     raise NotImplementedError('Only gpt2 and t5.')

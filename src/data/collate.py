@@ -20,11 +20,11 @@ class Collate:
         collated_batch = {
             'input_ids': [],
             'attention_mask': [],
-            'decoder_input_ids': [],
+            'labels': [],
             'decoder_attention_mask': [],
         }
-        for key in collated_batch:
-            max_batch_len = max([len(sample) for sample in batch[key]])
+        for key in batch[0]:
+            max_batch_len = max([len(sample[key]) for sample in batch])
             max_len = min(max_batch_len, self.max_len)
             pad_value = -100 if key == 'labels' else 0
             samples = [sample[key] for sample in batch]

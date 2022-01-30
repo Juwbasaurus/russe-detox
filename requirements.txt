@@ -31,6 +31,7 @@ PyYAML==6.0
 regex==2022.1.18
 requests==2.27.1
 sacremoses==0.0.46
+sentencepiece
 sentry-sdk==1.5.4
 setuptools==58.0.4
 shortuuid==1.0.8
