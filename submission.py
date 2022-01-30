@@ -1,3 +1,4 @@
+import argparse
 import csv
 
 import torch
@@ -5,14 +6,22 @@ from transformers import (
     GPT2LMHeadModel,
     GPT2TokenizerFast,
 )
-from tqdm import tqdm
 
 from utils.data_utils import preprocess_source
 
 
 DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-tokenizer = GPT2TokenizerFast.from_pretrained('models/test')
-model = GPT2LMHeadModel.from_pretrained('models/test').to(DEVICE)
+
+parser = argparse.ArgumentParser(description='Specify a tuned model path.')
+parser.add_argument(
+    'model_path',
+    type=str,
+    help="Path to model and tokenizer files.",
+)
+args = parser.parse_args()
+model_path = args.model_path
+tokenizer = GPT2TokenizerFast.from_pretrained(model_path)
+model = GPT2LMHeadModel.from_pretrained(model_path).to(DEVICE)
 
 inputs = []
 preds = []

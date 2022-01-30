@@ -14,7 +14,7 @@ parser.add_argument(
     help="Path to model and tokenizer files.",
 )
 args = parser.parse_args()
-model_path = args.config.split('/')[-1].split('.')[0]
+model_path = args.model_path
 
 tokenizer = GPT2TokenizerFast.from_pretrained(model_path)
 model = GPT2LMHeadModel.from_pretrained(model_path)
